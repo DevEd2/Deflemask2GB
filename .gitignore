@@ -3,3 +3,5 @@
 *.sym		# BGB symbol files
 *.sav		# Battery saves (not used for this project but just in case
 *.gbs		# GBS (Game Boy Sound) files
+*.gbr		# Game Boy Tile Designer project files
+*.gbm		# Game Boy Map Builder project files
