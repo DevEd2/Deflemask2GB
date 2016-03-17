@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo Assembling...
+rgbasm -o main.obj -p 255 main.asm
+echo Linking...
+rgblink -p 255 -o rom.gb -n rom.sym main.obj
+echo Fixing...
+rgbfix -v -p 255 rom.gb
+echo Build complete.
