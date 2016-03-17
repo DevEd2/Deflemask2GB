@@ -13,13 +13,13 @@ Mac OS X:
 
 2. Run the following in Terminal (make sure you have admin!):
 
-git clone https://github.com/bentley/rgbds
+   git clone https://github.com/bentley/rgbds
 
-cd rgbds
+   cd rgbds
 
-sudo make install
+   sudo make install
 
-cd ..
+   cd ..
 
 3. Run build.sh in Terminal. If it says "permission denied", then type "chmod 750 build.sh" and try again.
 
@@ -29,13 +29,13 @@ LINUX (UNTESTED):
 
 2. Once that's done, run the following (make sure you have admin!):
 
-git clone https://github.com/bentley/rgbds
+   git clone https://github.com/bentley/rgbds
 
-cd rgbds
+   cd rgbds
 
-sudo make install
+   sudo make install
 
-cd ..
+   cd ..
 
 3. Run build.sh.
 
