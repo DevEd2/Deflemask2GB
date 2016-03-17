@@ -188,8 +188,6 @@ VBlank:
 	jr	nz,VBlank	;if A !=91 then MainLoop
 	ret
 
-	include	"SystemRoutines.asm"
-
 ClearMap:
 	ld	hl,_SCRN0	;loads the address of the bg map ($9800) into HL
 	ld	bc,32*32	;since we have 32x32 tiles, we'll need a counter so we can clear all of them
