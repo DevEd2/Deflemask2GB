@@ -14,7 +14,7 @@ DEBUG_FLAG	SET 1
 	INCLUDE	"hardware.inc"
 
 	; project includes
-    INCLUDE	"Variables.asm"
+	INCLUDE	"Variables.asm"
 
 ;******************************************************************************************************
 ;*	cartridge header
@@ -50,7 +50,7 @@ RST_30:
 
 	SECTION	"Org $38",HOME[$38]
 RST_38:
-	ret	; because reasons
+	jp	Start		; upon execution of a $FF opcode (which is used for padding), the "game" jumps here
 
 	SECTION	"V-Blank IRQ Vector",HOME[$40]
 VBL_VECT:
@@ -73,21 +73,21 @@ SERIAL_VECT:
 JOYPAD_VECT:
 	reti
 
-    SECTION	"Start",HOME[$100]
+	SECTION	"Start",HOME[$100]
 	nop
 	jp	Start
 
 	; $0104-$0133 (Nintendo logo - do _not_ modify the logo data here or the GB will not run the program)
-	nintendoLogo
+	nintendoLogo		; this is defined in hardware.inc
 
 	; $0134-$013E (Game title - up to 11 upper case ASCII characters; pad with $00)
-	;	 ---------------
-	db	"DM HW PLAYER   "
+	;	 0123456789ABCDE
+	db	"DM HW PLAYER V2"
 
 	; $0143 (Game Boy Color compatibility code)
-	db	$00	; $00 - DMG 
-			; $80 - DMG/GBC
-			; $C0 - GBC Only cartridge
+	db	$00		; $00 - DMG 
+				; $80 - DMG/GBC
+				; $C0 - GBC Only cartridge
 
 	; $0144 (High-nibble of license code - normally $00 if $014B != $33)
 	db	0
@@ -102,8 +102,7 @@ JOYPAD_VECT:
 	db	$19	; $19 - MBC5
 
 	; $0148 (ROM size)
-	db	$3	; $3 = 256Kb (16 banks)
-    ; Music data takes up a total of 11 banks so we should specify 16 banks
+	db	$4	; $4 = 512Kb (32 banks)
 
 	; $0149 (RAM size)
 	db	0	; $00 - None
@@ -132,9 +131,9 @@ JOYPAD_VECT:
 	SECTION "Program Start",HOME[$0150]
 Start:
 	di
-	and	a	; 1 = DMG/SGB, FF = GBP/SGB2, 11 = GBC/GBA
-	cp	$11	; check if GBC flag is already set
-	ld	a,0	; xor a can't be used since it changes the zero flag
+	and	a		; 1 = DMG/SGB, FF = GBP/SGB2, 11 = GBC/GBA
+	cp	$11		; check if GBC flag is already set
+	ld	a,0		; xor a can't be used since it changes the zero flag
 	jr	nz,.noGBC
 	inc	a
 .noGBC
@@ -143,40 +142,39 @@ Start:
 	ld	[GBAFlag],a
 	
 Reset:
-    ld  a,$1f
-    ld  [rROMB0],a
+	ld  a,$1f
+	ld  [rROMB0],a
 
-    ld  a,0
-    ldh  [rLCDC],a   ; disable LCD
+	ld  a,0
+	ldh  [rLCDC],a		; disable LCD
 
-    call ClearMap
-    ld	hl,MainFont
+	call ClearMap
+	ld	hl,MainFont
 	ld	bc,$10*$64
 	call	LoadTiles
 
-    ld  hl,MainScreenTilemap
-    call    LoadMap
+	ld  hl,MainScreenTilemap
+	call	LoadMap
 
-    ld	a,%10000000+STATF_MODE01+STATF_VB
+	ld	a,%10000000+STATF_MODE01+STATF_VB
 	ldh	[rLCDC],a	; enable LCD
-    
-    ld  a,%11010010
-    ld  [rBGP],a
-    
-    ld	sp,$E000	;set the stack to $E000
-    ; Load song data and init playback
+	
+	ld  a,%11010010
+	ld  [rBGP],a		; set BG palette
+	
+	ld	sp,$E000	;set the stack to $E000
+	; Load song data and initialize playback.
 
-    ld  a,1
-    ld  [SoundEnabled],a
+	ld  a,1
+	ld  [SoundEnabled],a
 
-    call    $500
-    call    $5ec
+	call	$500		; load routine
+	call	$5ec		; init routine
 
-    ; Main loop
 MainLoop:
-    call    $544
-    call    VBlank
-    jp      MainLoop
+	call	$544		; play routine
+	call	VBlank
+	jp	MainLoop
 
 ;***************************************************************
 ;* Subroutines
@@ -186,54 +184,54 @@ MainLoop:
 
 VBlank:
 	ldh	a,[rLY]		;get current scanline
-	cp	$91			;Are we in v-blank yet?
+	cp	$91		;Are we in v-blank yet?
 	jr	nz,VBlank	;if A !=91 then MainLoop
 	ret
 
 	include	"SystemRoutines.asm"
 
 ClearMap:
-    ld	hl,_SCRN0		;loads the address of the bg map ($9800) into HL
-    ld	bc,32*32		;since we have 32x32 tiles, we'll need a counter so we can clear all of them
+	ld	hl,_SCRN0	;loads the address of the bg map ($9800) into HL
+	ld	bc,32*32	;since we have 32x32 tiles, we'll need a counter so we can clear all of them
 .loop:
-    xor	a
-    ld	[hl+],a		; load A into HL, then increment HL (the HL+)
-    dec	bc			; decrement our counter
-    ld	a,b			; load B into A
-    or	c			; if B or C != 0
-    jr	nz,.loop	; then loop
-    ret				; done
+	xor	a
+	ld	[hl+],a		; load A into HL, then increment HL (the HL+)
+	dec	bc		; decrement our counter
+	ld	a,b		; load B into A
+	or	c		; if B or C != 0
+	jr	nz,.loop	; then loop
+	ret			; done
 
 LoadTiles:
-    ld	de,_VRAM
+	ld	de,_VRAM
 .loop:
-    ld	a,[hl+]     ; get a byte from our tiles, and increment.
-    ld	[de],a      ; put that byte in VRAM and
-    inc	de          ; increment.
-    dec	bc          ; bc=bc-1.
-    ld	a,b         ; load B into A
-    or	c           ; if B or C != 0
-    jr	nz,.loop	; then loop.
-    ret             ; done
+	ld	a,[hl+]		; get a byte from our tiles, and increment.
+	ld	[de],a		; put that byte in VRAM and
+	inc	de		; increment.
+	dec	bc		; bc=bc-1.
+	ld	a,b		; load B into A
+	or	c		; if B or C != 0
+	jr	nz,.loop	; then loop.
+	ret			; done
 
 
 LoadMap:
-    ld	de,_SCRN0	;where our map goes
-    ld	b,$12
-    ld	c,$14
+	ld	de,_SCRN0	;where our map goes
+	ld	b,$12
+	ld	c,$14
 .loop:
-    ld	a,[hl+]	; get a byte of the map and inc hl
-    ld	[de],a	; put the byte at de
-    inc	de      ; increment de
-    dec	c		; decrement our counter
-    jr	nz,.loop
-    ld	c,$14
-    rept	12
-    inc	de
-    endr
-    dec	b
-    jr	nz,.loop	; and of the counter != 0 then MainLoop
-    ret             ; done
+	ld	a,[hl+]		; get a byte of the map and inc hl
+	ld	[de],a		; put the byte at de
+	inc	de		; increment de
+	dec	c		; decrement our counter
+	jr	nz,.loop
+	ld	c,$14
+	rept	12
+	inc	de		; repeat 12 times
+	endr
+	dec	b
+	jr	nz,.loop	; and of the counter != 0 then MainLoop
+	ret			; done
 
 ; Music data starts here.
 ; Note that the frontend code must fit within $500 bytes.
@@ -247,7 +245,7 @@ SECTION "Init routine failsafe",HOME[$5EC]
 InitDummy:	ret
 
 SECTION "Graphics data",ROMX,BANK[$1F]
-MainFont:           incbin  "Data/Font.bin"
+MainFont:	incbin  "Data/Font.bin"
 
 MainScreenTilemap:
 	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -259,8 +257,8 @@ MainScreenTilemap:
 	db	5," PLAYER BY DEVED  ",4
 	db	5,"                  ",4
 	db	5,"NOW PLAYING:      ",4
-	db	5,"SONG NAME HERE    ",4    ; placeholder for song name (18 bytes, pad w/ spaces)
-	db	5,"AUTHOR HERE       ",4    ; placeholder for author name (18 bytes, pad w/ spaces) 
+	db	5,"SONG NAME HERE    ",4	; placeholder for song name (18 bytes, pad w/ spaces)
+	db	5,"AUTHOR HERE       ",4	; placeholder for author name (18 bytes, pad w/ spaces) 
 	db	$b,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,$c
 	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
