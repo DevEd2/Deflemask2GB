@@ -1,7 +1,7 @@
-# Not neccesary to include these files since they're generated automatically
 *.obj 		# Object files
 *.sym		# BGB symbol files
 *.sav		# Battery saves (not used for this project but just in case
 *.gbs		# GBS (Game Boy Sound) files
 *.gbr		# Game Boy Tile Designer project files
 *.gbm		# Game Boy Map Builder project files
+rom.gb		# Built ROM. I *wish* I didn't have to do this, but it seems I don't have a choice
