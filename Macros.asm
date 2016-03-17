@@ -35,15 +35,3 @@ break:		MACRO
 	ld	b,b
 	ENDC
 	ENDM
-	
-FUCK:	MACRO
-	ld	b,b
-	ld	a,$ff
-	ld	hl,RST_00
-.SHIT:
-	ld	a,[hl+]
-	jp	.SHIT
-	ENDM
-	
-	ENDC
-	ENDC	; ?
