@@ -12,8 +12,10 @@ Usage:
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h> 
+#include <string.h>
 
 #define DEFAULT_BASE_ROM "rom.gb" 
+#define BASE_ROM_MIN_SIZE 0x80000 
 
 #define GBS_SONG_START 0x70
 #define GBS_SONG_NAME 0x10 
@@ -23,6 +25,8 @@ Usage:
 #define ROM_GRAPHICS_DATA_START 0x7C000 
 #define ROM_SONG_NAME 0x7C715 
 #define ROM_SONG_AUTHOR 0x7C729 
+
+char *getFilenameExt(const char *fname); 
 
 int main(int argc, char *argv[]) 
 {   
@@ -43,14 +47,30 @@ int main(int argc, char *argv[])
         // Open files 
         if (argc == 4) 
         {
+            if (strcmp(getFilenameExt(argv[3]), ".gb") != 0) 
+            {
+                printf("ERROR: Base ROM must have the file name extension '.gb'\n"); 
+                return 1; 
+            }
             fbase = fopen(argv[3], "rb");
         }
         else
         {
             fbase = fopen(DEFAULT_BASE_ROM, "rb");
         }
-        
+
+        if (strcmp(getFilenameExt(argv[2]), ".gbs") != 0) 
+        {
+            printf("ERROR: The input song must have the file name extension '.gbs'\n"); 
+            return 1; 
+        }
         fin = fopen(argv[2], "rb");
+
+        if (strcmp(getFilenameExt(argv[1]), ".gb") != 0) 
+        {
+            printf("ERROR: The output ROM must have the file name extension '.gb'\n");
+            return 1;  
+        }
         fout = fopen(argv[1], "wb");
 
         if (fbase == NULL) 
@@ -72,9 +92,14 @@ int main(int argc, char *argv[])
         // Read base rom and copy its contents into a buffer  
         fseek(fbase, 0, SEEK_END);
         long fsize_rom = ftell(fbase);
-        fseek(fbase, 0, SEEK_SET); 
+        if (fsize_rom < BASE_ROM_MIN_SIZE) 
+        {
+            printf("ERROR: Base ROM is too small. It should be 0x%x (%i) bytes or more.\n", BASE_ROM_MIN_SIZE, BASE_ROM_MIN_SIZE); 
+            return 1; 
+        }
 
         unsigned char *rom = (unsigned char *)malloc(fsize_rom * sizeof(unsigned char));
+        fseek(fbase, 0, SEEK_SET); 
         fread(rom, 1, fsize_rom, fbase);
         fclose(fbase);
 
@@ -123,4 +148,14 @@ int main(int argc, char *argv[])
     }
 
     return 0; 
+}
+
+char *getFilenameExt(const char *fname) 
+{
+    char *dot = strrchr(fname, '.');
+    if (!dot || dot == fname) 
+    {
+        return "";
+    }
+    return dot;
 }
