@@ -1,1 +1,0 @@
-gcc .\SongInserter.c -o .\SongInserter.exe 
