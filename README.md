@@ -37,7 +37,9 @@ Windows:
 
 3. Copy base ROM to SongInserter directory 
 
-4. In PowerShell, from the SongInserter directory, run: 
+4. SongInserter has been built and may now be used.
+   
+   In PowerShell, from the SongInserter directory, run: 
    ```
    .\SongInserter.exe [output.gb] [your_GBS_file.gbs]
    ..\bin\rgbfix -v -p 255 [output.gb]
@@ -50,7 +52,9 @@ Linux/Mac (Untested on Mac):
 
 3. Copy base ROM to SongInserter directory 
 
-4. In Bash, from the SongInserter directory, run:
+4. SongInserter has been built and may now be used.
+   
+   In Bash, from the SongInserter directory, run:
    ```
    ./SongInserter [output.gb] [your_GBS_file.gbs]
    rgbfix -v -p 255 [output.gb]
