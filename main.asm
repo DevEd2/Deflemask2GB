@@ -16,59 +16,59 @@
 ;*	cartridge header
 ;******************************************************************************************************
 
-	SECTION	"Org $00",HOME[$00]
+	SECTION	"Org $00",ROM0[$00]
 RST_00:	
 	jp	$100
 
-	SECTION	"Org $08",HOME[$08]
+	SECTION	"Org $08",ROM0[$08]
 RST_08:	
 	jp	$100
 
-	SECTION	"Org $10",HOME[$10]
+	SECTION	"Org $10",ROM0[$10]
 RST_10:
 	jp	$100
 
-	SECTION	"Org $18",HOME[$18]
+	SECTION	"Org $18",ROM0[$18]
 RST_18:
 	jp	$100
 
-	SECTION	"Org $20",HOME[$20]
+	SECTION	"Org $20",ROM0[$20]
 RST_20:
 	jp	$100
 
-	SECTION	"Org $28",HOME[$28]
+	SECTION	"Org $28",ROM0[$28]
 RST_28:
 	jp	$100
 
-	SECTION	"Org $30",HOME[$30]
+	SECTION	"Org $30",ROM0[$30]
 RST_30:
 	jp	$100
 
-	SECTION	"Org $38",HOME[$38]
+	SECTION	"Org $38",ROM0[$38]
 RST_38:
 	jp	Start		; upon execution of a $FF opcode (which is used for padding), the "game" jumps here
 
-	SECTION	"V-Blank IRQ Vector",HOME[$40]
+	SECTION	"V-Blank IRQ Vector",ROM0[$40]
 VBL_VECT:
 	reti
 	
-	SECTION	"LCD IRQ Vector",HOME[$48]
+	SECTION	"LCD IRQ Vector",ROM0[$48]
 LCD_VECT:
 	reti
 
-	SECTION	"Timer IRQ Vector",HOME[$50]
+	SECTION	"Timer IRQ Vector",ROM0[$50]
 TIMER_VECT:
 	reti
 
-	SECTION	"Serial IRQ Vector",HOME[$58]
+	SECTION	"Serial IRQ Vector",ROM0[$58]
 SERIAL_VECT:
 	reti
 
-	SECTION	"Joypad IRQ Vector",HOME[$60]
+	SECTION	"Joypad IRQ Vector",ROM0[$60]
 JOYPAD_VECT:
 	reti
 
-	SECTION	"Start",HOME[$100]
+	SECTION	"Start",ROM0[$100]
 	nop
 	jp	Start
 
@@ -123,7 +123,7 @@ JOYPAD_VECT:
 ;*	Program Start
 ;******************************************************************************************************
 
-	SECTION "Program Start",HOME[$0150]
+	SECTION "Program Start",ROM0[$0150]
 Start:
 	di
 	and	a		; 1 = DMG/SGB, FF = GBP/SGB2, 11 = GBC/GBA
@@ -175,7 +175,7 @@ MainLoop:
 ;* Subroutines
 ;***************************************************************
 
-	SECTION "Support Routines",HOME
+	SECTION "Support Routines",ROM0
 
 VBlank:
 	ldh	a,[rLY]		;get current scanline
@@ -230,11 +230,11 @@ LoadMap:
 ; Note that the frontend code must fit within $500 bytes.
 
 ; Failsafe in case there is no music data to play.
-SECTION	"Load routine failsafe",HOME[$500]
+SECTION	"Load routine failsafe",ROM0[$500]
 LoadDummy:	ret
-SECTION "Play routine failsafe",HOME[$544]
+SECTION "Play routine failsafe",ROM0[$544]
 PlayDummy:	ret
-SECTION "Init routine failsafe",HOME[$5EC]
+SECTION "Init routine failsafe",ROM0[$5EC]
 InitDummy:	ret
 
 SECTION "Graphics data",ROMX,BANK[$1F]
