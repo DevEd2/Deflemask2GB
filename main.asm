@@ -98,7 +98,7 @@ ROMChecksum:	dw						; ROM checksum (2 bytes) (handled by post-linking tool)
 ;*	Program Start
 ;******************************************************************************************************
 
-	SECTION "Program Start",HOME[$0150]
+	SECTION "Program Start",ROM0[$0150]
 Start:
 	di
 	ld	sp,$e000		;set the stack to $E000
@@ -153,7 +153,7 @@ MainLoop:
 ;* Subroutines
 ;***************************************************************
 
-	SECTION "Support Routines",HOME
+	SECTION "Support Routines",ROM0
 
 ; ================================================================
 ; Clear work RAM
@@ -223,11 +223,11 @@ LoadMap:
 ; Note that the frontend code must fit within $500 bytes.
 
 ; Failsafe in case there is no music data to play.
-SECTION	"Load routine failsafe",HOME[$500]
+SECTION	"Load routine failsafe",ROM0[$500]
 LoadDummy:	ret
-SECTION "Play routine failsafe",HOME[$544]
+SECTION "Play routine failsafe",ROM0[$544]
 PlayDummy:	ret
-SECTION "Init routine failsafe",HOME[$5EC]
+SECTION "Init routine failsafe",ROM0[$5EC]
 InitDummy:	ret
 
 SECTION "Graphics data",ROMX,BANK[$1F]
